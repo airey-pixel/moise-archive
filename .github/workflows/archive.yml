@@ -1,0 +1,22 @@
+name: Build Archive
+on:
+  schedule:
+    - cron: "30 23 * * *"   # 08:30 KST (봇 발송 직후 — 같은 날짜 콘텐츠 기록)
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install requests
+      - run: python archive.py
+      - run: |
+          git config user.name bot
+          git config user.email bot@users.noreply.github.com
+          git add archive.json
+          git commit -m "archive $(date -u +%F) [skip ci]" || echo "no change"
+          git push || true
