@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MOISĒ Daily — 매기의 아카이브</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf6f3; --card:#ffffff; --ink:#3a322e; --muted:#9b8e85;
+    --accent:#c98a7a; --soft:#f3e7e1; --line:#efe4dd; --gold:#bfa48f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",sans-serif;line-height:1.6;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 80px}
+  header{text-align:center;padding:64px 0 32px}
+  .logo{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:46px;letter-spacing:.06em;color:var(--ink)}
+  .logo small{display:block;font-family:"Noto Sans KR";font-weight:300;font-size:13px;letter-spacing:.32em;
+    color:var(--muted);margin-top:10px;text-transform:uppercase}
+  .tagline{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:19px;color:var(--gold);margin-top:18px}
+  .count{font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:.05em}
+  .day{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 28px;margin:22px 0;
+    box-shadow:0 8px 30px rgba(180,140,120,.06)}
+  .date{font-family:"Cormorant Garamond",serif;font-size:15px;color:var(--accent);font-weight:600;
+    letter-spacing:.08em;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .date::after{content:"";flex:1;height:1px;background:var(--line)}
+  .block{padding:18px 0;border-top:1px solid var(--line)}
+  .block:first-of-type{border-top:none}
+  .label{font-size:11px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;font-weight:500}
+  .affirm{font-family:"Cormorant Garamond",serif;font-size:23px;line-height:1.5;color:var(--ink);font-weight:500}
+  .cap p{margin:4px 0;font-size:15px}
+  .cap .en{color:var(--accent);font-style:italic;font-family:"Cormorant Garamond",serif;font-size:17px}
+  .cap .tags{color:var(--gold);font-size:13px;margin-top:8px;letter-spacing:.01em}
+  .tip-title{font-weight:700;font-size:16px;margin-bottom:6px;color:var(--ink)}
+  .tip-insight{font-size:14.5px;color:#5c5048}
+  .tip-action{font-size:13.5px;color:var(--accent);margin-top:8px}
+  .tip-ref{font-size:12px;color:var(--muted);margin-top:6px;font-style:italic}
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:50px;letter-spacing:.05em}
+  .loading{text-align:center;color:var(--muted);padding:60px 0;font-style:italic;font-family:"Cormorant Garamond",serif;font-size:20px}
+  @media(max-width:520px){.logo{font-size:38px}.day{padding:24px 20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">MOISĒ<small>Daily Archive</small></div>
+    <div class="tagline">a quiet ritual, every morning</div>
+    <div class="count" id="count"></div>
+  </header>
+  <div id="feed"><div class="loading">불러오는 중…</div></div>
+  <footer>매기(Maggie)가 매일 아침 남기는 기록 · MOISĒ ♡</footer>
+</div>
+<script>
+const esc = s => (s||"").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function card(e){
+  const t = e.tip||{}, c = e.caption||{};
+  return `<div class="day">
+    <div class="date">${esc(e.date)}</div>
+    <div class="block"><div class="label">Affirmation</div>
+      <div class="affirm">${esc(e.affirmation)}</div></div>
+    <div class="block"><div class="label">Instagram Caption</div>
+      <div class="cap">
+        <p class="en">${esc(c.en)}</p>
+        <p>${esc(c.ko)}</p>
+        <p>${esc(c.jp)}</p>
+        <p class="tags">${esc(c.tags)}</p>
+      </div></div>
+    <div class="block"><div class="label">Brand Note</div>
+      <div class="tip-title">${esc(t.title)}</div>
+      <div class="tip-insight">${esc(t.insight)}</div>
+      <div class="tip-action">✦ ${esc(t.action)}</div>
+      <div class="tip-ref">📚 ${esc(t.ref)}</div></div>
+  </div>`;
+}
+fetch('archive.json?_=' + Date.now())
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(data => {
+    data = (data||[]).slice().sort((a,b)=> (a.date<b.date?1:-1));
+    document.getElementById('count').textContent = data.length + ' days archived';
+    document.getElementById('feed').innerHTML = data.length
+      ? data.map(card).join('')
+      : '<div class="loading">아직 기록이 없어요. 내일 아침부터 쌓여요 ♡</div>';
+  })
+  .catch(function(){
+    document.getElementById('feed').innerHTML =
+      '<div class="loading">archive.json을 찾을 수 없어요.</div>';
+  });
+</script>
+</body>
+</html>
