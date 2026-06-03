@@ -8,7 +8,7 @@ import affirmation, marketing, caption
 
 KST = dt.timezone(dt.timedelta(hours=9))
 TODAY = dt.datetime.now(KST).date()
-PATH = "data/archive.json"
+PATH = "archive.json"
 
 
 def load():
@@ -35,7 +35,6 @@ def main():
         "tip": {"title": t[0], "insight": t[1], "action": t[2], "ref": t[3]},
         "caption": {"en": cap["en"], "ko": cap["ko"], "jp": cap["jp"], "tags": cap["tags"]},
     })
-    os.makedirs("data", exist_ok=True)
     json.dump(data, open(PATH, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("archive 기록 OK", today, "/ 누적", len(data), "일")
 
